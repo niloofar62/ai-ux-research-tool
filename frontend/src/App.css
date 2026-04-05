@@ -59,9 +59,19 @@ button:disabled {
 }
 
 .result {
-  padding: 16px;
+  padding: 20px;
   background: #f3f4f6;
-  border-radius: 8px;
+  border-radius: 10px;
+}
+
+.result-section {
+  margin-top: 16px;
+}
+
+.result-section h3,
+.project-result h4 {
+  margin-bottom: 8px;
+  color: #222;
 }
 
 .error {
@@ -69,9 +79,15 @@ button:disabled {
   margin-top: 12px;
 }
 
+.status,
+.empty-state {
+  margin-top: 16px;
+  color: #666;
+}
+
 .project-card {
   margin-top: 16px;
-  padding: 16px;
+  padding: 18px;
   border: 1px solid #ddd;
   border-radius: 10px;
   background: #fafafa;
@@ -88,6 +104,25 @@ button:disabled {
   margin-bottom: 12px;
 }
 
+.project-notes p {
+  margin-top: 8px;
+}
+
 .project-result {
-  margin-top: 12px;
+  margin-top: 16px;
+}
+
+.project-result ul,
+.result-section ul {
+  padding-left: 20px;
+}
+
+.delete-btn {
+  margin-top: 16px;
+  padding: 8px 14px;
+  border: none;
+  background: #d9534f;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
 }

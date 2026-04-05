@@ -5,7 +5,7 @@ import "./App.css";
 function App() {
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,7 +31,7 @@ function App() {
 
     setLoading(true);
     setError("");
-    setResult("");
+    setResult(null);
 
     try {
       const response = await axios.post("http://127.0.0.1:5000/summarize", {
@@ -48,6 +48,15 @@ function App() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (projectId) => {
+    try {
+      await axios.delete(`http://127.0.0.1:5000/projects/${projectId}`);
+      fetchProjects();
+    } catch (err) {
+      console.error("Error deleting project:", err);
     }
   };
 
@@ -75,21 +84,43 @@ function App() {
         {loading ? "Analyzing..." : "Generate Insights"}
       </button>
 
+      {loading && <p className="status">Analyzing research notes...</p>}
       {error && <p className="error">{error}</p>}
 
       {result && (
         <div className="result">
           <h2>Latest Result</h2>
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
-            {result}
+
+          <div className="result-section">
+            <h3>Summary</h3>
+            <p>{result.summary}</p>
+          </div>
+
+          <div className="result-section">
+            <h3>Themes</h3>
+            <ul>
+              {result.themes?.map((theme, index) => (
+                <li key={index}>{theme}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="result-section">
+            <h3>Insights</h3>
+            <ul>
+              {result.insights?.map((insight, index) => (
+                <li key={index}>{insight}</li>
+              ))}
+            </ul>
           </div>
         </div>
       )}
 
       <div className="saved-projects">
         <h2>Saved Projects</h2>
+
         {projects.length === 0 ? (
-          <p>No projects saved yet.</p>
+          <p className="empty-state">No saved projects yet.</p>
         ) : (
           projects.map((project) => (
             <div key={project.id} className="project-card">
@@ -97,15 +128,37 @@ function App() {
               <p className="project-date">
                 {new Date(project.created_at).toLocaleString()}
               </p>
-              <p>
-                <strong>Notes:</strong> {project.notes}
-              </p>
-              <div className="project-result">
-                <strong>AI Output:</strong>
-                <div style={{ whiteSpace: "pre-wrap", marginTop: "8px" }}>
-                  {project.result}
-                </div>
+
+              <div className="project-notes">
+                <strong>Notes:</strong>
+                <p>{project.notes}</p>
               </div>
+
+              <div className="project-result">
+                <h4>Summary</h4>
+                <p>{project.result?.summary}</p>
+
+                <h4>Themes</h4>
+                <ul>
+                  {project.result?.themes?.map((theme, index) => (
+                    <li key={index}>{theme}</li>
+                  ))}
+                </ul>
+
+                <h4>Insights</h4>
+                <ul>
+                  {project.result?.insights?.map((insight, index) => (
+                    <li key={index}>{insight}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <button
+                onClick={() => handleDelete(project.id)}
+                className="delete-btn"
+              >
+                Delete
+              </button>
             </div>
           ))
         )}

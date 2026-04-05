@@ -10,6 +10,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Fetch saved projects
   const fetchProjects = async () => {
     try {
       const response = await axios.get("http://127.0.0.1:5000/projects");
@@ -23,6 +24,7 @@ function App() {
     fetchProjects();
   }, []);
 
+  // Submit notes
   const handleSubmit = async () => {
     if (!notes.trim()) {
       setError("Please enter research notes.");
@@ -51,6 +53,7 @@ function App() {
     }
   };
 
+  // Delete project
   const handleDelete = async (projectId) => {
     try {
       await axios.delete(`http://127.0.0.1:5000/projects/${projectId}`);
@@ -65,6 +68,7 @@ function App() {
       <h1>UX Research Synthesizer</h1>
       <p>Turn raw user research into structured insights using AI.</p>
 
+      {/* Inputs */}
       <input
         type="text"
         placeholder="Project title"
@@ -87,35 +91,39 @@ function App() {
       {loading && <p className="status">Analyzing research notes...</p>}
       {error && <p className="error">{error}</p>}
 
+      {/* Latest Result */}
       {result && (
         <div className="result">
           <h2>Latest Result</h2>
 
-          <div className="result-section">
-            <h3>Summary</h3>
-            <p>{result.summary}</p>
-          </div>
+          <div className="result-cards">
+            <div className="result-card">
+              <h3>Summary</h3>
+              <p>{result.summary}</p>
+            </div>
 
-          <div className="result-section">
-            <h3>Themes</h3>
-            <ul>
-              {result.themes?.map((theme, index) => (
-                <li key={index}>{theme}</li>
-              ))}
-            </ul>
-          </div>
+            <div className="result-card">
+              <h3>Themes</h3>
+              <ul>
+                {result.themes?.map((theme, index) => (
+                  <li key={index}>{theme}</li>
+                ))}
+              </ul>
+            </div>
 
-          <div className="result-section">
-            <h3>Insights</h3>
-            <ul>
-              {result.insights?.map((insight, index) => (
-                <li key={index}>{insight}</li>
-              ))}
-            </ul>
+            <div className="result-card">
+              <h3>Insights</h3>
+              <ul>
+                {result.insights?.map((insight, index) => (
+                  <li key={index}>{insight}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Saved Projects */}
       <div className="saved-projects">
         <h2>Saved Projects</h2>
 
@@ -125,6 +133,7 @@ function App() {
           projects.map((project) => (
             <div key={project.id} className="project-card">
               <h3>{project.title || "Untitled Research"}</h3>
+
               <p className="project-date">
                 {new Date(project.created_at).toLocaleString()}
               </p>
@@ -134,23 +143,29 @@ function App() {
                 <p>{project.notes}</p>
               </div>
 
-              <div className="project-result">
-                <h4>Summary</h4>
-                <p>{project.result?.summary}</p>
+              <div className="project-result-cards">
+                <div className="project-result-card">
+                  <h4>Summary</h4>
+                  <p>{project.result?.summary}</p>
+                </div>
 
-                <h4>Themes</h4>
-                <ul>
-                  {project.result?.themes?.map((theme, index) => (
-                    <li key={index}>{theme}</li>
-                  ))}
-                </ul>
+                <div className="project-result-card">
+                  <h4>Themes</h4>
+                  <ul>
+                    {project.result?.themes?.map((theme, index) => (
+                      <li key={index}>{theme}</li>
+                    ))}
+                  </ul>
+                </div>
 
-                <h4>Insights</h4>
-                <ul>
-                  {project.result?.insights?.map((insight, index) => (
-                    <li key={index}>{insight}</li>
-                  ))}
-                </ul>
+                <div className="project-result-card">
+                  <h4>Insights</h4>
+                  <ul>
+                    {project.result?.insights?.map((insight, index) => (
+                      <li key={index}>{insight}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
 
               <button

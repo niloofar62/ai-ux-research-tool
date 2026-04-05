@@ -1,0 +1,93 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7fb;
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  margin-bottom: 8px;
+}
+
+p {
+  color: #555;
+}
+
+.title-input,
+textarea {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  margin-top: 16px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  background: black;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.result,
+.saved-projects {
+  margin-top: 32px;
+}
+
+.result {
+  padding: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+.error {
+  color: red;
+  margin-top: 12px;
+}
+
+.project-card {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.project-card h3 {
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+
+.project-date {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.project-result {
+  margin-top: 12px;
+}

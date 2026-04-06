@@ -1,6 +1,15 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import {
+  fetchProjectsApi,
+  summarizeApi,
+  deleteProjectApi,
+} from "./api";
+
+import ResultCards from "./components/ResultCards";
+import ProjectList from "./components/ProjectList";
+import InsightForm from "./components/InsightForm";
+
 
 function App() {
   const [title, setTitle] = useState("");
@@ -8,15 +17,20 @@ function App() {
   const [result, setResult] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const [error, setError] = useState("");
+  const resultRef = useRef(null);
 
-  // Fetch saved projects
   const fetchProjects = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:5000/projects");
+      setProjectsLoading(true);
+      const response = await fetchProjectsApi();
       setProjects(response.data);
     } catch (err) {
       console.error("Error fetching projects:", err);
+      setError("Failed to load projects.");
+    } finally {
+      setProjectsLoading(false);
     }
   };
 
@@ -24,10 +38,14 @@ function App() {
     fetchProjects();
   }, []);
 
-  // Submit notes
   const handleSubmit = async () => {
     if (!notes.trim()) {
       setError("Please enter research notes.");
+      return;
+    }
+
+    if (notes.length > 5000) {
+      setError("Notes too long (max 5000 characters).");
       return;
     }
 
@@ -36,15 +54,16 @@ function App() {
     setResult(null);
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/summarize", {
-        title,
-        notes,
-      });
+      const response = await summarizeApi({ title, notes });
 
       setResult(response.data.result);
       setTitle("");
       setNotes("");
-      fetchProjects();
+      await fetchProjects();
+
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     } catch (err) {
       setError("Something went wrong. Check backend.");
       console.error(err);
@@ -53,13 +72,16 @@ function App() {
     }
   };
 
-  // Delete project
   const handleDelete = async (projectId) => {
+    if (!window.confirm("Delete this project?")) return;
+
     try {
-      await axios.delete(`http://127.0.0.1:5000/projects/${projectId}`);
-      fetchProjects();
+      setError("");
+      await deleteProjectApi(projectId);
+      await fetchProjects();
     } catch (err) {
       console.error("Error deleting project:", err);
+      setError("Failed to delete project. Please try again.");
     }
   };
 
@@ -68,116 +90,25 @@ function App() {
       <h1>UX Research Synthesizer</h1>
       <p>Turn raw user research into structured insights using AI.</p>
 
-      {/* Inputs */}
-      <input
-        type="text"
-        placeholder="Project title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="title-input"
+      <InsightForm
+        title={title}
+        setTitle={setTitle}
+        notes={notes}
+        setNotes={setNotes}
+        loading={loading}
+        handleSubmit={handleSubmit}
       />
 
-      <textarea
-        placeholder="Paste your research notes here..."
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        rows={10}
-      />
-
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? "Analyzing..." : "Generate Insights"}
-      </button>
-
-      {loading && <p className="status">Analyzing research notes...</p>}
       {error && <p className="error">{error}</p>}
 
-      {/* Latest Result */}
-      {result && (
-        <div className="result">
-          <h2>Latest Result</h2>
+      <ResultCards result={result} resultRef={resultRef} loading={loading} />
 
-          <div className="result-cards">
-            <div className="result-card">
-              <h3>Summary</h3>
-              <p>{result.summary}</p>
-            </div>
-
-            <div className="result-card">
-              <h3>Themes</h3>
-              <ul>
-                {result.themes?.map((theme, index) => (
-                  <li key={index}>{theme}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="result-card">
-              <h3>Insights</h3>
-              <ul>
-                {result.insights?.map((insight, index) => (
-                  <li key={index}>{insight}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Saved Projects */}
-      <div className="saved-projects">
-        <h2>Saved Projects</h2>
-
-        {projects.length === 0 ? (
-          <p className="empty-state">No saved projects yet.</p>
-        ) : (
-          projects.map((project) => (
-            <div key={project.id} className="project-card">
-              <h3>{project.title || "Untitled Research"}</h3>
-
-              <p className="project-date">
-                {new Date(project.created_at).toLocaleString()}
-              </p>
-
-              <div className="project-notes">
-                <strong>Notes:</strong>
-                <p>{project.notes}</p>
-              </div>
-
-              <div className="project-result-cards">
-                <div className="project-result-card">
-                  <h4>Summary</h4>
-                  <p>{project.result?.summary}</p>
-                </div>
-
-                <div className="project-result-card">
-                  <h4>Themes</h4>
-                  <ul>
-                    {project.result?.themes?.map((theme, index) => (
-                      <li key={index}>{theme}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="project-result-card">
-                  <h4>Insights</h4>
-                  <ul>
-                    {project.result?.insights?.map((insight, index) => (
-                      <li key={index}>{insight}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleDelete(project.id)}
-                className="delete-btn"
-              >
-                Delete
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+      <ProjectList
+        projects={projects}
+        projectsLoading={projectsLoading}
+        onDelete={handleDelete}
+        loading={loading}
+      />
     </div>
   );
 }

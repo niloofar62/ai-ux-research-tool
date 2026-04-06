@@ -188,3 +188,22 @@ button:disabled {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+.form-section {
+  margin-top: 16px;
+}
+
+.char-count {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #777;
+  text-align: right;
+}
+
+.result-skeleton {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f3f4f6;
+  border: 1px dashed #ccc;
+  border-radius: 10px;
+  color: #666;
+}
